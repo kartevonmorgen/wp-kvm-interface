@@ -61,18 +61,29 @@ class KVMInterfaceAdminControl
     {
       public function get_value()
       {
-    
         $instance = KVMInterface::get_instance(); 
-        $events = $instance->get_events();
-    
         $result = '';
-
-        foreach ( $events as $event ) 
+        try
         {
-          $result .= $event->to_text();
+          $events = $instance->get_events();
+
+          foreach ( $events as $event ) 
+          {
+            $result .= $event->to_text();
+            $result .= PHP_EOL;
+            $result .= '-----------------';
+            $result .= PHP_EOL;
+          }
+        }
+        catch(OpenFairDBApiException $e)
+        {
+          $result .= 'ERROR';
           $result .= PHP_EOL;
-          $result .= '-----------------';
+          $result .= 'Code: '. $e->getCode();
           $result .= PHP_EOL;
+          $result .= 'Message: '. $e->getMessage();
+          $result .= PHP_EOL;
+          $result .= 'Trace: '. $e->getTraceAsString();
         }
         return $result;
       }
@@ -87,18 +98,29 @@ class KVMInterfaceAdminControl
     {
       public function get_value()
       {
-    
         $instance = KVMInterface::get_instance(); 
-        $entries = $instance->get_entries();
-    
         $result = '';
-
-        foreach ( $entries as $entry ) 
+        try
         {
-          $result .= $entry->to_text();
+          $entries = $instance->get_entries();
+    
+          foreach ( $entries as $entry ) 
+          {
+            $result .= $entry->to_text();
+            $result .= PHP_EOL;
+            $result .= '-----------------';
+            $result .= PHP_EOL;
+          }
+        }
+        catch(OpenFairDBApiException $e)
+        {
+          $result .= 'ERROR';
           $result .= PHP_EOL;
-          $result .= '-----------------';
+          $result .= 'Code: '. $e->getCode();
           $result .= PHP_EOL;
+          $result .= 'Message: '. $e->getMessage();
+          $result .= PHP_EOL;
+          $result .= 'Trace: '. $e->getTraceAsString();
         }
         return $result;
       }
