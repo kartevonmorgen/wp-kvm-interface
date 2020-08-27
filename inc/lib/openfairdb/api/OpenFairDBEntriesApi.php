@@ -358,9 +358,35 @@ class OpenFairDBEntriesApi extends AbstractOpenFairDBApi
     $wpLocation->set_lat( $body['lat'] );
 
     $wpInitiative->set_location($wpLocation);
+
+    if(!empty($body['tags']))
+    {
+      foreach($body['tags'] as $tag)
+      {
+        $wpTag = new WPTag($tag, $tag);
+        $wpInitiative->add_tag($wpTag);
+      }
+    }
+
+
+    if( !empty( $body['categories'] ))
+    {
+      foreach( $body['categories'] as $cat)
+      {
+        if( $cat == '77b3c33a92554bcf8e8c2c86cedd6f6f' )
+        {
+          $wpInitiative->set_company(true);
+          break;
+        }
+        if( $cat == '2cd00bebec0c48ba9db761da48678134' )
+        {
+          $wpInitiative->set_company(false);
+          break;
+        }
+      }
+    }
+
     // TODO: Fill elements füther
-
-
 
     if(!empty($body['version']))
     {
