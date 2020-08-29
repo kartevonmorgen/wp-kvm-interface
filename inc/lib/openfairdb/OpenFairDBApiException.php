@@ -90,4 +90,13 @@ class OpenFairDBApiException extends Exception
     {
         return $this->responseObject;
     }
+
+    public function getTextareaMessage()
+    {
+      $msg = '' . $this->getMessage() . 
+             '(' . $this->getCode() .')';
+      $msg .= PHP_EOL;
+      $msg .= $this->getTraceAsString();
+      return $msg;
+    }
 }

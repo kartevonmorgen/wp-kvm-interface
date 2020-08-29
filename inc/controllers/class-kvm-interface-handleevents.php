@@ -92,13 +92,42 @@ class KVMInterfaceHandleEvents
     $this->get_parent()->update_config();
     $api = $this->getEventsApi();
 
+    $wpLocation = $eiEvent->get_location();
+    if(empty($wpLocation->get_lat()) ||
+       empty($wpLocation->get_lon()))
+    {
+      $this->handleOFDBException(
+        'Hochladen zu der Karte von Morgen '.
+        'geht nicht, die Adresse (' . 
+        $wpLocation->get_name() . ')' . 
+        ' ist nicht richtig, '.
+        'keine Koordinaten gefunden für die Adresse.',
+        $eiEvent,
+        $id,
+        null);
+      return;
+    }
+
+
     if(empty($id))
     {
-      $id = $api->eventsPost($eiEvent);
-      $id = str_replace('"', '', $id);
-      update_post_meta($eiEvent->get_post_id(),
-                       $meta_id, 
-                       $id);
+      try
+      {
+        $id = $api->eventsPost($eiEvent);
+        $id = str_replace('"', '', $id);
+        update_post_meta($eiEvent->get_post_id(),
+                         $meta_id, 
+                         $id);
+      }
+      catch(OpenFairDBApiException $e)
+      {
+        $this->handleOFDBException(
+          'eventsPut failed',
+          $eiEvent,
+          '',
+          $e);
+        return;
+      }
     }
     else
     {
@@ -109,16 +138,20 @@ class KVMInterfaceHandleEvents
       }
       catch(OpenFairDBApiException $e)
       {
-        if($e->getCode() == 404)
-        {
-          echo 'OpenFairDB eventsPut, id not found' . $id;
-        }
-        else
-        {
-          throw $e;
-        }
+        $this->handleOFDBException(
+          'eventsPut failed',
+          $eiEvent,
+          $id,
+          $e);
+        return;
       }
     }
+    $this->handleOFDBException(
+      'Status Okey',
+      $eiEvent,
+      $id,
+      null);
+    return;
   }
 
   public function event_deleted($eiEvent)
@@ -168,14 +201,11 @@ class KVMInterfaceHandleEvents
       }
       catch(OpenFairDBApiException $e)
       {
-        if($e->getCode() == 404)
-        {
-          echo 'OpenFairDB eventsDelete, id not found' . $id;
-        }
-        else
-        {
-          throw $e;
-        }
+        $this->handleOFDBException(
+          'eventsDelete failed',
+          $eiEvent,
+          $id,
+          $e);
       }
       delete_post_meta($eiEvent->get_post_id(),
                        $meta_id);
@@ -192,5 +222,41 @@ class KVMInterfaceHandleEvents
   public function getEventsApi()
   {
     return $this->eventsApi;
+  }
+
+  public function handleOFDBException($msg, 
+                                      $eiEvent,
+                                      $kvm_id,
+                                      $e)
+  {
+    if(empty($eiEvent->get_owner_user_id()))
+    {
+      return;
+    }
+
+    $msgTA = '[' . date_create()->format('Y-m-d H:i:s') . ']';
+    $msgTA .= ' Veranstaltung hochladen';
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'Titel: ' . 
+              $eiEvent->get_title() . 
+              '(postid=' . $eiEvent->get_post_id() .  
+              ', eventid=' . $eiEvent->get_event_id() . ')'; 
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'KVM Id: ' . $kvm_id;
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'Bericht: ' . $msg;
+    $msgTA .= PHP_EOL;
+    if( ! empty($e ))
+    {
+      $msgTA .= PHP_EOL;
+      $msgTA .= 'Exception: ';
+      $msgTA .= PHP_EOL;
+      $msgTA .= $e->getTextareaMessage();
+    }
+
+    update_user_meta(
+      $eiEvent->get_owner_user_id(),
+      'initiative_kvm_errorlog',
+      $msgTA);
   }
 }

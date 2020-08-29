@@ -49,11 +49,36 @@ class KVMInterfaceHandleEntries
     $wpLocationHelper = new WPLocationHelper();
     $wpLocationHelper->fill_by_osm_nominatim($wpLocation);
 
+    if(empty($wpLocation->get_lat()) ||
+       empty($wpLocation->get_lon()))
+    {
+      $this->handleOFDBException(
+        'Hochladen zu der Karte von Morgen '.
+        'geht nicht, die Adresse ist nicht richtig, '.
+        'keine Koordinaten gefunden für die Adresse.',
+        $wpInitiative,
+        $id,
+        null);
+      return $id;
+    }
+
     if(empty($id))
     {
-      $id = $api->entriesPost($wpInitiative);
-      $id = str_replace('"', '', $id);
-      $wpInitiative->set_kvm_id($id);
+      try
+      {
+        $id = $api->entriesPost($wpInitiative);
+        $id = str_replace('"', '', $id);
+        $wpInitiative->set_kvm_id($id);
+      }
+      catch(OpenFairDBApiException $e)
+      {
+        $this->handleOFDBException(
+          'entriesPut',
+          $wpInitiative,
+          $id,
+          $e);
+        return $id;
+      }
     }
     else
     {
@@ -66,17 +91,20 @@ class KVMInterfaceHandleEntries
       }
       catch(OpenFairDBApiException $e)
       {
-        echo 'CODE ' . $e->getCode();
-        if($e->getCode() == 404)
-        {
-          echo 'OpenFairDB entriesPut, id not found' . $id;
-        }
-        else
-        {
-          throw $e;
-        }
+        $this->handleOFDBException(
+          'entriesPut',
+          $wpInitiative,
+          $id,
+          $e);
+        return $id;
       }
     }
+
+    $this->handleOFDBException(
+      'Status Okey',
+      $wpInitiative,
+      $id,
+      null);
     return $id;
   }
 
@@ -123,5 +151,39 @@ class KVMInterfaceHandleEntries
   public function getEntriesApi()
   {
     return $this->entriesApi;
+  }
+
+  public function handleOFDBException($msg, 
+                                      $wpInitiative,
+                                      $kvm_id,
+                                      $e)
+  {
+    if(empty($wpInitiative->get_user_id()))
+    {
+      return;
+    }
+
+    $msgTA = '[' . date_create()->format('Y-m-d H:i:s') . ']';
+    $msgTA .= ' Initiative hochladen';
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'Initiative Name: ' . 
+              $wpInitiative->get_name() . 
+              '(' . $wpInitiative->get_id() . ')'; 
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'KVM Id: ' . $kvm_id;
+    $msgTA .= PHP_EOL;
+    $msgTA .= 'Bericht: ' . $msg;
+    $msgTA .= PHP_EOL;
+    if( ! empty($e ))
+    {
+      $msgTA .= PHP_EOL;
+      $msgTA .= 'Exception: ';
+      $msgTA .= PHP_EOL;
+      $msgTA .= $e->getTextareaMessage();
+    }
+    update_user_meta(
+      $wpInitiative->get_user_id(),
+      'initiative_kvm_errorlog',
+      $msgTA);
   }
 }
