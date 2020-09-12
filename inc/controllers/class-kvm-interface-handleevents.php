@@ -234,7 +234,8 @@ class KVMInterfaceHandleEvents
       return;
     }
 
-    $msgTA = '[' . date_create()->format('Y-m-d H:i:s') . ']';
+    $msgTA = '[' . get_date_from_gmt(date("Y-m-d H:i:s")) 
+             . ']';
     $msgTA .= ' Veranstaltung hochladen';
     $msgTA .= PHP_EOL;
     $msgTA .= 'Titel: ' . 

@@ -163,7 +163,7 @@ class KVMInterfaceHandleEntries
       return;
     }
 
-    $msgTA = '[' . date_create()->format('Y-m-d H:i:s') . ']';
+    $msgTA = '[' . get_date_from_gmt(date("Y-m-d H:i:s")) . ']';
     $msgTA .= ' Initiative hochladen';
     $msgTA .= PHP_EOL;
     $msgTA .= 'Initiative Name: ' . 
