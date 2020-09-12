@@ -427,14 +427,14 @@ class OpenFairDBEntriesApi extends AbstractOpenFairDBApi
     $tags = array();
     foreach($wpInitiative->get_categories() as $wpCat)
     {
-      array_push($tags, $wpCat->get_slug());
+      array_push($tags, $wpCat->get_name());
     }
 
     foreach($wpInitiative->get_tags() as $wpTag)
     {
-      if( ! in_array($wpTag->get_slug(), $tags) )
+      if( ! in_array($wpTag->get_name(), $tags) )
       {
-        array_push($tags, $wpTag->get_slug());
+        array_push($tags, $wpTag->get_name());
       }
     }
 

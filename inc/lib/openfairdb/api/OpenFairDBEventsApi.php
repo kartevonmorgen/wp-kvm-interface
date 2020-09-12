@@ -476,13 +476,13 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
     $tags = array();
     foreach($eiEvent->get_tags() as $eiTag)
     {
-      array_push($tags, $eiTag->get_slug());
+      array_push($tags, $eiTag->get_name());
     }
     foreach($eiEvent->get_categories() as $eiCat)
     {
-      if( !in_array($eiCat->get_slug(), $tags))
+      if( !in_array($eiCat->get_name(), $tags))
       {
-        array_push($tags, $eiCat->get_slug());
+        array_push($tags, $eiCat->get_name());
       }
     }
 
