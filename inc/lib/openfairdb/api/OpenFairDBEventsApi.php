@@ -424,10 +424,12 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
     {
       $body['organizer'] = $eiEvent->get_contact_name(); 
     }
-    if(!empty($eiEvent->get_contact_email()))
-    {
-      $body['email'] = $eiEvent->get_contact_email(); 
-    }
+    //Do not upload Email, to work against spam
+    //if(!empty($eiEvent->get_contact_email()))
+    //{
+    //  $body['email'] = $eiEvent->get_contact_email(); 
+    //}
+    $body['email'] = ''; 
     if(!empty($eiEvent->get_contact_phone()))
     {
       $body['telephone'] = $eiEvent->get_contact_phone(); 
