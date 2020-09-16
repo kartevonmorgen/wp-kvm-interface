@@ -434,7 +434,9 @@ class OpenFairDBEntriesApi extends AbstractOpenFairDBApi
 
     foreach($wpInitiative->get_tags() as $wpTag)
     {
-      if( ! in_array($this->convert_to_kvm_tag($wpTag->get_name()), $tags) )
+      if( ! in_array(
+              $this->convert_to_kvm_tag($wpTag->get_name()), 
+              $tags) )
       {
         array_push($tags, 
           $this->convert_to_kvm_tag($wpTag->get_name()));
