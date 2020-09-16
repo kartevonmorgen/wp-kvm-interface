@@ -478,17 +478,22 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
     $tags = array();
     foreach($eiEvent->get_tags() as $eiTag)
     {
-      array_push($tags, $eiTag->get_name());
+      array_push($tags, 
+        $this->convert_to_kvm_tag($eiTag->get_name()));
     }
     foreach($eiEvent->get_categories() as $eiCat)
     {
-      if( !in_array($eiCat->get_name(), $tags))
+      if( !in_array(
+        $this->convert_to_kvm_tag(
+          $eiCat->get_name(), $tags)))
       {
-        array_push($tags, $eiCat->get_name());
+        array_push($tags, 
+          $this->convert_to_kvm_tag($eiCat->get_name()));
       }
     }
 
-    $fixed_tag = get_option('kvm_fixed_tag');
+    $fixed_tag = $this->convert_to_kvm_tag(
+                   get_option('kvm_fixed_tag'));
     if(!empty($fixed_tag))
     {
       array_push($tags, $fixed_tag);

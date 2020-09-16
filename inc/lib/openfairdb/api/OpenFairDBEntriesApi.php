@@ -428,18 +428,21 @@ class OpenFairDBEntriesApi extends AbstractOpenFairDBApi
     $tags = array();
     foreach($wpInitiative->get_categories() as $wpCat)
     {
-      array_push($tags, $wpCat->get_name());
+      array_push($tags, 
+        $this->convert_to_kvm_tag($wpCat->get_name()));
     }
 
     foreach($wpInitiative->get_tags() as $wpTag)
     {
-      if( ! in_array($wpTag->get_name(), $tags) )
+      if( ! in_array($this->convert_to_kvm_tag($wpTag->get_name()), $tags) )
       {
-        array_push($tags, $wpTag->get_name());
+        array_push($tags, 
+          $this->convert_to_kvm_tag($wpTag->get_name()));
       }
     }
 
-    $fixed_tag = get_option('kvm_fixed_tag');
+    $fixed_tag = $this->convert_to_kvm_tag(
+                   get_option('kvm_fixed_tag'));
     if(!empty($fixed_tag))
     {
       if( ! in_array($fixed_tag, $tags) )

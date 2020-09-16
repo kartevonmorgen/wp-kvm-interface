@@ -213,6 +213,15 @@ abstract class AbstractOpenFairDBApi
     return $qs ? (string) substr($qs, 0, -1) : '';
   }
 
+  public function convert_to_kvm_tag($tag_name)
+  {
+    if(empty($tag_name))
+    {
+      return $tag_name;
+    }
+    return str_replace(' ', '-', $tag_name);
+  }
+
   public function createException($request, $response)
   {
     $statusCode = 0;
