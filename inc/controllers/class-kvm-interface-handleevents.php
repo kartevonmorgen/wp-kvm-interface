@@ -93,6 +93,17 @@ class KVMInterfaceHandleEvents
     $api = $this->getEventsApi();
 
     $wpLocation = $eiEvent->get_location();
+    if(empty($wpLocation))
+    {
+      $this->handleOFDBException(
+        'Hochladen zu der Karte von Morgen '.
+        'geht nicht, die Addresse ist ' . 
+        'nicht bekannt (location is null)',
+        $eiEvent,
+        $id,
+        null);
+      return;
+    }
     if(empty($wpLocation->get_lat()) ||
        empty($wpLocation->get_lon()))
     {
