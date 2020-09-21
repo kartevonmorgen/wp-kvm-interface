@@ -64,6 +64,9 @@ require_once( dirname( __FILE__ )."/inc/controllers/class-kvm-interface.php" );
 
 function kvm_start()
 {
+  $eiInterface = EIInterface::get_instance();
+  $eiInterface->register_for_kartevonmorgen();
+
   $kvmInterface = KVMInterfaceAdminControl::get_instance();
   $kvmInterface->start();
 }
