@@ -158,32 +158,29 @@ class KVMInterfaceHandleEntries
                                       $kvm_id,
                                       $e)
   {
-    if(empty($wpInitiative->get_user_id()))
+    if(empty($wpInitiative->get_id()))
     {
       return;
     }
 
-    $msgTA = '[' . get_date_from_gmt(date("Y-m-d H:i:s")) . ']';
-    $msgTA .= ' Initiative hochladen';
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'Initiative Name: ' . 
+    $logger = new PostMetaLogger(
+      'initiative_kvm_log',
+      $wpInitiative->get_id());
+
+    $logger->add_date();
+
+    $logger->add_line('Initiative hochladen');
+    $logger->add_line('Initiative Name: ' . 
               $wpInitiative->get_name() . 
-              '(' . $wpInitiative->get_id() . ')'; 
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'KVM Id: ' . $kvm_id;
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'Bericht: ' . $msg;
-    $msgTA .= PHP_EOL;
+              '(' . $wpInitiative->get_id() . ')'); 
+    $logger->add_line($kvm_id);
+    $logger->add_line('Bericht: ' . $msg);
     if( ! empty($e ))
     {
-      $msgTA .= PHP_EOL;
-      $msgTA .= 'Exception: ';
-      $msgTA .= PHP_EOL;
-      $msgTA .= $e->getTextareaMessage();
+      $logger->add_line('Exception: ');
+      $logger->add_line($e->getTextareaMessage());
     }
-    update_user_meta(
-      $wpInitiative->get_user_id(),
-      'initiative_kvm_errorlog',
-      $msgTA);
+
+    $logger->save();
   }
 }

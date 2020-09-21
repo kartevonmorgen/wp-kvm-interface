@@ -240,35 +240,30 @@ class KVMInterfaceHandleEvents
                                       $kvm_id,
                                       $e)
   {
-    if(empty($eiEvent->get_owner_user_id()))
+    if(empty($eiEvent->get_post_id()))
     {
       return;
     }
 
-    $msgTA = '[' . get_date_from_gmt(date("Y-m-d H:i:s")) 
-             . ']';
-    $msgTA .= ' Veranstaltung hochladen';
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'Titel: ' . 
+    $logger = new PostMetaLogger(
+      'event_kvm_log',
+      $eiEvent->get_post_id());
+
+    $logger->add_date();
+
+    $logger->add_line('Veranstaltung hochladen');
+    $logger->add_line('Titel: ' . 
               $eiEvent->get_title() . 
               '(postid=' . $eiEvent->get_post_id() .  
-              ', eventid=' . $eiEvent->get_event_id() . ')'; 
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'KVM Id: ' . $kvm_id;
-    $msgTA .= PHP_EOL;
-    $msgTA .= 'Bericht: ' . $msg;
-    $msgTA .= PHP_EOL;
+              ', eventid=' . $eiEvent->get_event_id() . ')'); 
+    $logger->add_line($kvm_id);
+    $logger->add_line('Bericht: ' . $msg);
     if( ! empty($e ))
     {
-      $msgTA .= PHP_EOL;
-      $msgTA .= 'Exception: ';
-      $msgTA .= PHP_EOL;
-      $msgTA .= $e->getTextareaMessage();
+      $logger->add_line('Exception: ');
+      $logger->add_line($e->getTextareaMessage());
     }
 
-    update_user_meta(
-      $eiEvent->get_owner_user_id(),
-      'initiative_kvm_errorlog',
-      $msgTA);
+    $logger->save();
   }
 }

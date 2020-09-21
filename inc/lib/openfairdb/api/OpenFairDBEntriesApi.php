@@ -408,8 +408,7 @@ class OpenFairDBEntriesApi extends AbstractOpenFairDBApi
     $body['title'] = $wpInitiative->get_name();
     $body['description'] = $wpInitiative->get_description();
     $body['telephone'] = $wpInitiative->get_contact_phone();
-    // prevent spam
-    $body['email'] = ''; //$wpInitiative->get_contact_email();
+    $body['email'] = $wpInitiative->get_contact_email();
     $body['homepage'] = $wpInitiative->get_contact_website();
 
     if( $wpInitiative->is_company())
