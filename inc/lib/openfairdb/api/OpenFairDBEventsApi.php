@@ -416,7 +416,14 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
 
     $body = array();
     $body['title'] = $eiEvent->get_title();
-    $body['description'] = $eiEvent->get_excerpt();
+    if($eiEvent->has_excerpt())
+    {
+      $body['description'] = $eiEvent->get_excerpt();
+    }
+    else
+    {
+      $body['description'] = $eiEvent->generate_excerpt();
+    }
     $body['created_by'] = $admin_email;
     $body['start'] = strtotime($eiEvent->get_start_date());
     $body['end'] = strtotime($eiEvent->get_end_date());
