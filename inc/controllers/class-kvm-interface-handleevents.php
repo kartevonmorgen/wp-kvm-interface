@@ -64,13 +64,33 @@ class KVMInterfaceHandleEvents
 
   public function event_saved($eiEvent)
   {
-    // Prevent Upload to KVM if in the User Settings
-    // it is not allowed
-    $upload = get_user_meta($eiEvent->get_owner_user_id(),
-                            self::KVM_UPLOAD, 
-                            true);
-    if(!$upload)
+    $post_status = $eiEvent->get_post_status();
+    if(empty($post_status))
     {
+      return;
+    }
+
+    if($post_status === 'draft' ||
+      $post_status === 'pending')
+    {
+      // delete the event if it is modified 
+      // to draft or pending
+      // so it is not visible anymore
+      // on the Karte von Morgen
+      $this->event_deleted($eiEvent);
+      return;
+    }
+
+    if($post_status !== 'publish')
+    {
+      // Only update if the post is published
+      $this->handleOFDBException(
+        'Hochladen zu der Karte von Morgen '.
+        'geht nicht, die Veranstaltung ' . 
+        'ist nicht Veröffentlicht.',
+        $eiEvent,
+        $id,
+        null);
       return;
     }
 
@@ -158,7 +178,7 @@ class KVMInterfaceHandleEvents
       }
     }
     $this->handleOFDBException(
-      'Status Okey',
+      'Event Hochladen, Status Okey',
       $eiEvent,
       $id,
       null);
@@ -168,16 +188,6 @@ class KVMInterfaceHandleEvents
   public function event_deleted($eiEvent)
   {
     if(empty($eiEvent))
-    {
-      return;
-    }
-
-    // Prevent Upload to KVM if in the User Settings
-    // it is not allowed
-    $upload = get_user_meta($eiEvent->get_owner_user_id(),
-                            self::KVM_UPLOAD, 
-                            true);
-    if(!$upload)
     {
       return;
     }
@@ -202,25 +212,33 @@ class KVMInterfaceHandleEvents
     $this->get_parent()->update_config();
     $api = $this->getEventsApi();
 
-    if(!empty($id))
+    if(empty($id))
     {
-      $id = str_replace('"', '', $id);
-
-      try
-      {
-        $api->eventsDelete($id);
-      }
-      catch(OpenFairDBApiException $e)
-      {
-        $this->handleOFDBException(
-          'eventsDelete failed',
-          $eiEvent,
-          $id,
-          $e);
-      }
-      delete_post_meta($eiEvent->get_post_id(),
-                       $meta_id);
+      return;
     }
+
+    $id = str_replace('"', '', $id);
+
+    try
+    {
+      $api->eventsDelete($id);
+    }
+    catch(OpenFairDBApiException $e)
+    {
+      $this->handleOFDBException(
+        'Event Deleted failed',
+        $eiEvent,
+        $id,
+        $e);
+    }
+    delete_post_meta($eiEvent->get_post_id(),
+                     $meta_id);
+
+    $this->handleOFDBException(
+      'Event Deleted, Status Okey',
+      $eiEvent,
+      $id,
+      null);
   }
 
   public function get_events()
@@ -251,7 +269,7 @@ class KVMInterfaceHandleEvents
 
     $logger->add_date();
 
-    $logger->add_line('Veranstaltung hochladen');
+    $logger->add_line('Veranstaltung hochladen/entfernt');
     $logger->add_line('Titel: ' . 
               $eiEvent->get_title() . 
               '(postid=' . $eiEvent->get_post_id() .  
