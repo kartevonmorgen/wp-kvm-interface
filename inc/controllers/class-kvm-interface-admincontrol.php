@@ -10,27 +10,8 @@
  * @copyright  No Copyright.
  * @license    GNU/GPLv2, see https://www.gnu.org/licenses/gpl-2.0.html
  */
-class KVMInterfaceAdminControl 
+class KVMInterfaceAdminControl extends WPPluginStarter 
 {
-  private static $instance = null;
-
-  private function __construct() 
-  {
-  }
-
-  /** 
-   * The object is created from within the class itself
-   * only if the class has no instance.
-   */
-  public static function get_instance()
-  {
-    if (self::$instance == null)
-    {
-      self::$instance = new KVMInterfaceAdminControl();
-    }
-    return self::$instance;
-  }
-
   public function start() 
   {
     $page = new UISettingsPage('kvm-interface', 

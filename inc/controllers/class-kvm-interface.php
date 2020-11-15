@@ -7,7 +7,7 @@
  * @copyright  No Copyright.
  * @license    GNU/GPLv2, see https://www.gnu.org/licenses/gpl-2.0.html
  */
-class KVMInterface 
+class KVMInterface extends WPPluginStarter
 {
   private static $instance = null;
 
@@ -36,7 +36,7 @@ class KVMInterface
     return self::$instance;
   }
 
-  public function initialize()
+  public function start()
   {
     $this->get_handle_events()->initialize();
     $this->get_handle_entries()->initialize();
