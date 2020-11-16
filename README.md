@@ -1,7 +1,7 @@
-# kvm-interface
+# wp-kvm-interface
 This plugin is used to upload and download events and initiative(entries) to the Karte von Morgen.
 
-The Plugin depends on the ["Events Interface"](https://github.com/kartevonmorgen/events-interface) - Wordpress Plugin which need to be installed and activated first.
+The Plugin depends on the ["WP Events Interface"](https://github.com/kartevonmorgen/wp-events-interface) - Wordpress Plugin which need to be installed and activated first.
 
 The following Settings can be setted under Events Interface - Karte von Morgen
 * URL - > URL to the OpenFairDB Database
