@@ -432,11 +432,11 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
       $body['organizer'] = $eiEvent->get_contact_name(); 
     }
     //Do not upload Email, to work against spam
-    //if(!empty($eiEvent->get_contact_email()))
-    //{
-    //  $body['email'] = $eiEvent->get_contact_email(); 
-    //}
-    $body['email'] = ''; 
+    if(!empty($eiEvent->get_contact_email()))
+    {
+      $body['email'] = $eiEvent->get_contact_email(); 
+    }
+    //$body['email'] = ''; 
     if(!empty($eiEvent->get_contact_phone()))
     {
       $body['telephone'] = $eiEvent->get_contact_phone(); 
@@ -519,6 +519,10 @@ class OpenFairDBEventsApi extends AbstractOpenFairDBApi
     $eiEvent->set_description( $body['description'] );
     $eiEvent->set_start_date( $body['start'] );
     $eiEvent->set_end_date( $body['end'] );
+    $eiEvent->set_contact_name( $body['organizer'] );
+    $eiEvent->set_contact_email( $body['email'] );
+    $eiEvent->set_contact_phone( $body['telephone'] );
+    $eiEvent->set_contact_website( $body['website'] );
     // TODO: Fill elements füther
     return $eiEvent;
   }
