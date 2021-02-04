@@ -115,6 +115,20 @@ class KVMInterfaceHandleEvents
     $wpLocation = $eiEvent->get_location();
     if(empty($wpLocation))
     {
+      // If the Event has no location, we try
+      // to get the location of the initiative
+      // because a lot of online events do not have
+      // a location
+      if( class_exists('InitiativeSaveKVMEntry'))
+      {
+        $iske = new InitiativeSaveKVMEntry($eiEvent->get_owner_user_id());
+        $wpLocation = $iske->create_location();
+        $eiEvent->set_location($wpLocation);
+      }
+    }
+
+    if(empty($wpLocation))
+    {
       $this->handleOFDBException(
         'Hochladen zu der Karte von Morgen '.
         'geht nicht, die Addresse ist ' . 
@@ -124,6 +138,7 @@ class KVMInterfaceHandleEvents
         null);
       return;
     }
+
     if(empty($wpLocation->get_lat()) ||
        empty($wpLocation->get_lon()))
     {
